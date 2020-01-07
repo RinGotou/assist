@@ -75,30 +75,30 @@ namespace kagami {
     return value;
   }
 
-  void ReturnIntObject(int64_t value, ReturningTunnel tunnel) {
-    tunnel(&value, kExtTypeInt);
+  void ReturnIntObject(int64_t value, ReturningTunnel tunnel, VMState state) {
+    tunnel(&value, state.ret_slot, kExtTypeInt);
   }
 
-  void ReturnFloatObject(double value, ReturningTunnel tunnel) {
-    tunnel(&value, kExtTypeFloat);
+  void ReturnFloatObject(double value, ReturningTunnel tunnel, VMState state) {
+    tunnel(&value, state.ret_slot, kExtTypeFloat);
   }
 
-  void ReturnBoolObject(bool value, ReturningTunnel tunnel) {
+  void ReturnBoolObject(bool value, ReturningTunnel tunnel, VMState state) {
     int buffer = value ? 1 : 0;
-    tunnel(&buffer, kExtTypeBool);
+    tunnel(&buffer, state.ret_slot, kExtTypeBool);
   }
 
-  void ReturnStringObject(string value, ReturningTunnel tunnel) {
+  void ReturnStringObject(string value, ReturningTunnel tunnel, VMState state) {
     char *buffer = new char[value.size() + 1];
     std::strcpy(buffer, value.data());
-    tunnel(buffer, kExtTypeString);
+    tunnel(buffer, state.ret_slot, kExtTypeString);
     delete[] buffer;
   }
 
-  void ReturnWideStringObject(wstring value, ReturningTunnel tunnel) {
+  void ReturnWideStringObject(wstring value, ReturningTunnel tunnel, VMState state) {
     wchar_t *buffer = new wchar_t[value.size() + 1];
     std::wcscpy(buffer, value.data());
-    tunnel(buffer, kExtTypeWidestring);
+    tunnel(buffer, state.ret_slot, kExtTypeWideString);
     delete[] buffer;
   }
 }

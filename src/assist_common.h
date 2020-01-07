@@ -18,7 +18,7 @@ namespace kagami {
   using ObjectValueFetcher = int(*)(void **, void *, const char *);
   using CallbackFacilityLauncher = ObjectValueFetcher(*)(const char *);
   using ExtensionLoader = int(*)(CallbackFacilityLauncher, MemoryDisposer, MemoryDisposer);
-  using ReturningTunnel = void(*)(void *, int);
+  using ReturningTunnel = void(*)(void *, void *, int);
 
   using IntValue = optional<int64_t>;
   using FloatValue = optional<double>;
@@ -40,6 +40,10 @@ namespace kagami {
     kExtTypeFloat      = 2,
     kExtTypeBool       = 3,
     kExtTypeString     = 4,
-    kExtTypeWidestring = 5
+    kExtTypeWideString = 5
+  };
+
+  extern "C" struct VMState {
+    void *obj_map, *ret_slot;
   };
 }

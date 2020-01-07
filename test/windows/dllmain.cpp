@@ -36,18 +36,18 @@ const char *kagami_ParameterInformer(const char *id) {
   return nullptr;
 }
 
-int sample_helloworld(void *obj_map, kagami::ReturningTunnel tunnel) {
+int sample_helloworld(kagami::VMState state, kagami::ReturningTunnel tunnel) {
   string msg = "Nothing here!";
-  kagami::ReturnStringObject(msg, tunnel);
+  kagami::ReturnStringObject(msg, tunnel, state);
   return 1;
 }
 
-int sample_plus(void *obj_map, kagami::ReturningTunnel tunnel) {
-  auto a = kagami::FromIntObject("a", obj_map);
-  auto b = kagami::FromIntObject("b", obj_map);
+int sample_plus(kagami::VMState state, kagami::ReturningTunnel tunnel) {
+  auto a = kagami::FromIntObject("a", state.obj_map);
+  auto b = kagami::FromIntObject("b", state.obj_map);
   if (!a.has_value() || !b.has_value()) return 0;
   int64_t result = a.value() + b.value();
-  kagami::ReturnIntObject(result, tunnel);
+  kagami::ReturnIntObject(result, tunnel, state);
   return 1;
 }
 

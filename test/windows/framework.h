@@ -18,6 +18,6 @@ extern "C" {
     kagami::MemoryDisposer disposer, kagami::MemoryDisposer group_disposer);
   __declspec(dllexport) const char *kagami_ParameterInformer(const char *id);
 
-  __declspec(dllexport) int sample_helloworld(void *obj_map, kagami::ReturningTunnel tunnel);
-  __declspec(dllexport) int sample_plus(void *obj_map, kagami::ReturningTunnel tunnel);
+  __declspec(dllexport) int sample_helloworld(kagami::VMState state, kagami::ReturningTunnel tunnel);
+  __declspec(dllexport) int sample_plus(kagami::VMState state, kagami::ReturningTunnel tunnel);
 }

@@ -10,9 +10,9 @@ namespace kagami {
   BoolValue FromBoolObject(string id, void *obj_map);
   StringValue FromStringObject(string id, void *obj_map);
   WideStringValue FromWideStringObject(string id, void *obj_map);
-  void ReturnIntObject(int64_t value, ReturningTunnel tunnel);
-  void ReturnFloatObject(double value, ReturningTunnel tunnel);
-  void ReturnBoolObject(bool value, ReturningTunnel tunnel);
-  void ReturnStringObject(string value, ReturningTunnel tunnel);
-  void ReturnWideStringObject(wstring value, ReturningTunnel tunnel);
+  void ReturnIntObject(int64_t value, ReturningTunnel tunnel, VMState state);
+  void ReturnFloatObject(double value, ReturningTunnel tunnel, VMState state);
+  void ReturnBoolObject(bool value, ReturningTunnel tunnel, VMState state);
+  void ReturnStringObject(string value, ReturningTunnel tunnel, VMState state);
+  void ReturnWideStringObject(wstring value, ReturningTunnel tunnel, VMState state);
 }
