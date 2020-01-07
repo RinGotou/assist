@@ -16,3 +16,6 @@ using FunctionParameters = pair<string, const char *>;
 extern __declspec(dllexport) int kagami_LoadExtension(kagami::CallbackFacilityLauncher launcher, 
   kagami::MemoryDisposer disposer, kagami::MemoryDisposer group_disposer);
 extern __declspec(dllexport) const char *kagami_ParameterInformer(const char *id);
+
+extern __declspec(dllexport) int sample_helloworld(void *obj_map, kagami::ReturningTunnel tunnel);
+extern __declspec(dllexport) int sample_plus(void *obj_map, kagami::ReturningTunnel tunnel);
