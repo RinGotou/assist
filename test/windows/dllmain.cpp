@@ -20,10 +20,35 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 
 int kagami_LoadExtension(kagami::CallbackFacilityLauncher launcher,
   kagami::MemoryDisposer disposer, kagami::MemoryDisposer group_disposer) {
-
-  return 1;
+  bool facilities_result = kagami::InformCallbackFacilities(launcher);
+  bool mem_mgmt_result = kagami::InformMemoryMgmtInterface(disposer, group_disposer);
+  int result = facilities_result && mem_mgmt_result ? 1 : 0;
+  return result;
 }
 
 const char *kagami_ParameterInformer(const char *id) {
+  static unordered_map<string, const char *> parameters = {
+    FunctionParameters("sample_helloworld", ""),
+    FunctionParameters("sample_plus", "a|b")
+  };
 
+  auto it = parameters.find(string(id));
+  if (it != parameters.end()) return it->second;
+  return nullptr;
 }
+
+int sample_helloworld(void *obj_map, kagami::ReturningTunnel tunnel) {
+  string msg = "Nothing here!";
+  kagami::ReturnStringObject(msg, tunnel);
+  return 1;
+}
+
+int sample_plus(void *obj_map, kagami::ReturningTunnel tunnel) {
+  auto a = kagami::FromIntObject("a", obj_map);
+  auto b = kagami::FromIntObject("b", obj_map);
+  if (!a.has_value() || !b.has_value()) return 0;
+  int64_t result = a.value() + b.value();
+  kagami::ReturnIntObject(result, tunnel);
+  return 1;
+}
+
