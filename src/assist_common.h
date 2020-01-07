@@ -45,5 +45,6 @@ namespace kagami {
 
   extern "C" struct VMState {
     void *obj_map, *ret_slot;
+    ReturningTunnel tunnel;
   };
 }
