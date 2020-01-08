@@ -2,7 +2,7 @@
 #include "assist_common.h"
 
 namespace kagami {
-  bool InformCallbackFacilities(CallbackFacilityLauncher launcher);
+  bool InformCallbackFacilities(CallbackFacilityLauncher launcher, ObjectTypeFetcher fetcher);
   bool InformMemoryMgmtInterface(MemoryDisposer disposer_ptr, MemoryDisposer group_disposer_ptr);
 
   IntValue FromIntObject(string id, void *obj_map);
@@ -15,4 +15,5 @@ namespace kagami {
   void ReturnBoolObject(bool value, VMState state);
   void ReturnStringObject(string value, VMState state);
   void ReturnWideStringObject(wstring value, VMState state);
+  ExtActivityReturnType GetObjectType(void *obj_map, string id);
 }

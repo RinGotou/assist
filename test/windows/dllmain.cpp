@@ -18,8 +18,9 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 
 
 int kagami_LoadExtension(kagami::CallbackFacilityLauncher launcher,
-  kagami::MemoryDisposer disposer, kagami::MemoryDisposer group_disposer) {
-  bool facilities_result = kagami::InformCallbackFacilities(launcher);
+  kagami::MemoryDisposer disposer, kagami::MemoryDisposer group_disposer, 
+  kagami::ObjectTypeFetcher type_fetcher) {
+  bool facilities_result = kagami::InformCallbackFacilities(launcher, type_fetcher);
   bool mem_mgmt_result = kagami::InformMemoryMgmtInterface(disposer, group_disposer);
   int result = facilities_result && mem_mgmt_result ? 1 : 0;
   return result;

@@ -10,18 +10,23 @@ namespace kagami {
   static MemoryDisposer
     disposer        = nullptr,
     group_disposer  = nullptr;
+  static ObjectTypeFetcher
+    type_fetcher    = nullptr;
 
-  bool InformCallbackFacilities(CallbackFacilityLauncher launcher) {
+  bool InformCallbackFacilities(CallbackFacilityLauncher launcher, ObjectTypeFetcher fetcher) {
     int_fetcher = launcher("int");
     float_fetcher = launcher("float");
     bool_fetcher = launcher("bool");
     string_fetcher = launcher("string");
     wstring_fetcher = launcher("wstring");
-    return (int_fetcher != nullptr)
-      && (float_fetcher != nullptr)
-      && (bool_fetcher != nullptr)
-      && (string_fetcher != nullptr)
-      && (wstring_fetcher != nullptr);
+    type_fetcher = fetcher;
+
+    return (int_fetcher   != nullptr)
+      && (float_fetcher   != nullptr)
+      && (bool_fetcher    != nullptr)
+      && (string_fetcher  != nullptr)
+      && (wstring_fetcher != nullptr)
+      && (type_fetcher    != nullptr);
   }
 
   bool InformMemoryMgmtInterface(MemoryDisposer disposer_ptr, MemoryDisposer group_disposer_ptr) {
@@ -100,5 +105,9 @@ namespace kagami {
     std::wcscpy(buffer, value.data());
     state.tunnel(buffer, state.ret_slot, kExtTypeWideString);
     delete[] buffer;
+  }
+
+  ExtActivityReturnType GetObjectType(void *obj_map, string id) {
+    return ExtActivityReturnType(type_fetcher(obj_map, id.data()));
   }
 }

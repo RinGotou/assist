@@ -1,4 +1,7 @@
 #pragma once
+#ifdef _MSC_VER
+#pragma warning(disable:26812)
+#endif
 #include <unordered_map>
 #include <vector>
 #include <optional>
@@ -17,7 +20,9 @@ namespace kagami {
   using ParameterInformer = const char *(*)(const char *);
   using ObjectValueFetcher = int(*)(void **, void *, const char *);
   using CallbackFacilityLauncher = ObjectValueFetcher(*)(const char *);
-  using ExtensionLoader = int(*)(CallbackFacilityLauncher, MemoryDisposer, MemoryDisposer);
+  using ObjectTypeFetcher = int(*)(void *, const char *);
+  using ExtensionLoader = int(*)(CallbackFacilityLauncher, 
+    MemoryDisposer, MemoryDisposer, ObjectTypeFetcher);
   using ReturningTunnel = void(*)(void *, void *, int);
 
   using IntValue = optional<int64_t>;
@@ -36,6 +41,7 @@ namespace kagami {
   const string kTypeIdOutStream = "outstream";
 
   enum ExtActivityReturnType {
+    kExtTypeNull       = 0,
     kExtTypeInt        = 1,
     kExtTypeFloat      = 2,
     kExtTypeBool       = 3,
