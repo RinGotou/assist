@@ -13,7 +13,7 @@ namespace kagami {
   using std::optional;
   using std::nullopt;
 
-  using MemoryDisposer = void(*)(void *);
+  using MemoryDisposer = void(*)(void *, int);
   using ParameterInformer = const char *(*)(const char *);
   using ObjectValueFetcher = int(*)(void **, void *, const char *);
   using CallbackFacilityLauncher = ObjectValueFetcher(*)(const char *);

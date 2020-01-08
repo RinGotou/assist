@@ -35,7 +35,7 @@ namespace kagami {
     int result = int_fetcher((void **)&buffer, obj_map, id.data());
     if (result != 1) return nullopt;
     int64_t value = *buffer;
-    disposer(buffer);
+    disposer(buffer, kExtTypeInt);
     return value;
   }
 
@@ -44,7 +44,7 @@ namespace kagami {
     int result = float_fetcher((void **)&buffer, obj_map, id.data());
     if (result != 1) return nullopt;
     double value = *buffer;
-    disposer(buffer);
+    disposer(buffer, kExtTypeFloat);
     return value;
   }
 
@@ -53,7 +53,7 @@ namespace kagami {
     int result = bool_fetcher((void **)&buffer, obj_map, id.data());
     if (result != 1) return nullopt;
     bool value = (*buffer == 1);
-    disposer(buffer);
+    disposer(buffer, kExtTypeBool);
     return value;
   }
 
@@ -62,7 +62,7 @@ namespace kagami {
     int result = string_fetcher((void **)&buffer, obj_map, id.data());
     if (result != 1) return nullopt;
     string value(buffer);
-    group_disposer(buffer);
+    group_disposer(buffer, kExtTypeString);
     return value;
   }
 
@@ -71,7 +71,7 @@ namespace kagami {
     int result = wstring_fetcher((void **)&buffer, obj_map, id.data());
     if (result != 1) return nullopt;
     wstring value(buffer);
-    group_disposer(buffer);
+    group_disposer(buffer, kExtTypeWideString);
     return value;
   }
 
