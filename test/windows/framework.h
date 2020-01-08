@@ -15,7 +15,8 @@ using FunctionParameters = pair<string, const char *>;
 
 extern "C" {
   __declspec(dllexport) int kagami_LoadExtension(kagami::CallbackFacilityLauncher launcher,
-    kagami::MemoryDisposer disposer, kagami::MemoryDisposer group_disposer);
+    kagami::MemoryDisposer disposer, kagami::MemoryDisposer group_disposer,
+    kagami::ObjectTypeFetcher type_fetcher);
   __declspec(dllexport) const char *kagami_ParameterInformer(const char *id);
 
   __declspec(dllexport) int sample_helloworld(kagami::VMState state);
