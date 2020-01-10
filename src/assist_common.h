@@ -6,6 +6,7 @@
 #include <vector>
 #include <optional>
 #include <cstdlib>
+#include <cstring>
 #include "filestream.h"
 #define ASSIST_VERSION 1
 
