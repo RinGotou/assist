@@ -21,7 +21,7 @@ namespace kagami {
 }
 
 #define KAGAMI_STANDARD_EXTENSION                                              \
-int kagami_LoadExtension(kagami::ExtInterfaces *interfaces) {                  \
+EXPORTED int kagami_LoadExtension(kagami::ExtInterfaces *interfaces) {                  \
   bool facilities_result = kagami::InformCallbackFacilities(                   \
     interfaces->launcher, interfaces->type_fetcher);                           \
   bool mem_mgmt_result = kagami::InformMemoryMgmtInterface(                    \
