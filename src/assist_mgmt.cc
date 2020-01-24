@@ -12,6 +12,8 @@ namespace kagami {
     group_disposer  = nullptr;
   static ObjectTypeFetcher
     type_fetcher    = nullptr;
+  static ErrorInformer 
+    error_informer = nullptr;
 
   bool InformCallbackFacilities(CallbackFacilityLauncher launcher, ObjectTypeFetcher fetcher) {
     int_fetcher = launcher("int");
@@ -33,6 +35,11 @@ namespace kagami {
     disposer = disposer_ptr;
     group_disposer = group_disposer_ptr;
     return (disposer != nullptr) && (group_disposer_ptr != nullptr);
+  }
+
+  bool InformErrorThrowingInterface(ErrorInformer informer) {
+    error_informer = informer;
+    return error_informer != nullptr;
   }
 
   IntValue FromIntObject(string id, void *obj_map) {
@@ -105,6 +112,10 @@ namespace kagami {
     std::wcscpy(buffer, value.data());
     state.tunnel(buffer, state.ret_slot, kExtTypeWideString);
     delete[] buffer;
+  }
+
+  void ThrowError(string msg, VMState state) {
+    error_informer(state.vm, msg.data());
   }
 
   ExtActivityReturnType GetObjectType(void *obj_map, string id) {

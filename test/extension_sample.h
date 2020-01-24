@@ -20,11 +20,10 @@ using std::pair;
 using FunctionParameters = pair<string, const char *>;
 
 extern "C" {
-  EXPORTED  int kagami_LoadExtension(kagami::CallbackFacilityLauncher launcher,
-    kagami::MemoryDisposer disposer, kagami::MemoryDisposer group_disposer,
-    kagami::ObjectTypeFetcher type_fetcher);
+  EXPORTED  int kagami_LoadExtension(kagami::ExtInterfaces *interfaces);
   EXPORTED  const char *kagami_ParameterInformer(const char *id);
 
   EXPORTED int sample_helloworld(kagami::VMState state);
   EXPORTED int sample_plus(kagami::VMState state);
+  EXPORTED int sample_throw_error(kagami::VMState state);
 }

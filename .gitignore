@@ -2,6 +2,7 @@
 *.d
 # Template files
 *.TMP
+vc140.pdb
 
 # Compiled Object files
 *.slo
