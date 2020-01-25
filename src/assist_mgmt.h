@@ -2,6 +2,9 @@
 #include "assist_common.h"
 
 namespace kagami {
+  vector<string> BuildStringVector(string source);
+  string CombineStringVector(vector<string> target);
+
   bool InformCallbackFacilities(CallbackFacilityLauncher launcher, ObjectTypeFetcher fetcher);
   bool InformMemoryMgmtInterface(MemoryDisposer disposer_ptr, MemoryDisposer group_disposer_ptr);
   bool InformErrorThrowingInterface(ErrorInformer informer);

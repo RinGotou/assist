@@ -15,6 +15,30 @@ namespace kagami {
   static ErrorInformer 
     error_informer = nullptr;
 
+  vector<string> BuildStringVector(string source) {
+    vector<string> result;
+    string temp;
+    for (auto unit : source) {
+      if (unit == '|') {
+        result.push_back(temp);
+        temp.clear();
+        continue;
+      }
+      temp.append(1, unit);
+    }
+    if (temp != "") result.push_back(temp);
+    return result;
+  }
+
+  string CombineStringVector(vector<string> target) {
+    string result;
+    for (size_t i = 0; i < target.size(); ++i) {
+      result = result + target[i] + "|";
+    }
+    result.pop_back();
+    return result;
+  }
+
   bool InformCallbackFacilities(CallbackFacilityLauncher launcher, ObjectTypeFetcher fetcher) {
     int_fetcher = launcher("int");
     float_fetcher = launcher("float");
