@@ -27,12 +27,8 @@ namespace kagami {
   using ObjectTypeFetcher = int(*)(void *, const char *);
   using ReturningTunnel = void(*)(void *, void *, int);
   using ErrorInformer = void(*)(void*, const char*);
-
-  using IntValue = optional<int64_t>;
-  using FloatValue = optional<double>;
-  using BoolValue = optional<bool>;
-  using StringValue = optional<string>;
-  using WideStringValue = optional<wstring>;
+  using GenericFunctionPointer = void(*)();
+  using GenericPointer = uintptr_t;
  
   const string kTypeIdNull = "null";
   const string kTypeIdInt = "int";
@@ -42,15 +38,23 @@ namespace kagami {
   const string kTypeIdWideString = "wstring";
   const string kTypeIdInStream = "instream";
   const string kTypeIdOutStream = "outstream";
+  const string kTypeIdFunctionPointer = "function_pointer";
+  const string kTypeIdObjectPointer = "object_pointer";
 
   enum ExtActivityReturnType {
-    kExtTypeNull       = 0,
-    kExtTypeInt        = 1,
-    kExtTypeFloat      = 2,
-    kExtTypeBool       = 3,
-    kExtTypeString     = 4,
-    kExtTypeWideString = 5,
-    kExtCustomTypes    = 100
+    kExtTypeNull            = 0,
+    kExtTypeInt             = 1,
+    kExtTypeFloat           = 2,
+    kExtTypeBool            = 3,
+    kExtTypeString          = 4,
+    kExtTypeWideString      = 5,
+    kExtTypeFunctionPointer = 6,
+    kExtTypeObjectPointer   = 7,
+    kExtCustomTypes         = 100
+  };
+
+  extern "C" struct CABIContainer {
+    GenericFunctionPointer ptr;
   };
 
   extern "C" struct VMState {
@@ -65,4 +69,12 @@ namespace kagami {
     ObjectTypeFetcher type_fetcher;
     ErrorInformer error_informer;
   };
+
+  using IntValue = optional<int64_t>;
+  using FloatValue = optional<double>;
+  using BoolValue = optional<bool>;
+  using StringValue = optional<string>;
+  using WideStringValue = optional<wstring>;
+  using FunctionPointerValue = optional<CABIContainer>;
+  using ObjectPointerValue = optional<GenericPointer>;
 }

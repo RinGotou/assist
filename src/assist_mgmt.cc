@@ -2,18 +2,20 @@
 
 namespace kagami {
   static ObjectValueFetcher
-    int_fetcher     = nullptr,
-    float_fetcher   = nullptr,
-    bool_fetcher    = nullptr,
-    string_fetcher  = nullptr,
-    wstring_fetcher = nullptr;
+    int_fetcher      = nullptr,
+    float_fetcher    = nullptr,
+    bool_fetcher     = nullptr,
+    string_fetcher   = nullptr,
+    wstring_fetcher  = nullptr,
+    func_ptr_fetcher = nullptr,
+    obj_ptr_fetcher  = nullptr;
   static MemoryDisposer
     disposer        = nullptr,
     group_disposer  = nullptr;
   static ObjectTypeFetcher
     type_fetcher    = nullptr;
   static ErrorInformer 
-    error_informer = nullptr;
+    error_informer  = nullptr;
 
   vector<string> BuildStringVector(string source) {
     vector<string> result;
@@ -45,6 +47,8 @@ namespace kagami {
     bool_fetcher = launcher("bool");
     string_fetcher = launcher("string");
     wstring_fetcher = launcher("wstring");
+    func_ptr_fetcher = launcher("function_pointer");
+    obj_ptr_fetcher = launcher("object_pointer");
     type_fetcher = fetcher;
 
     return (int_fetcher   != nullptr)
@@ -111,6 +115,23 @@ namespace kagami {
     return value;
   }
 
+  FunctionPointerValue FromFunctionPointerObject(string id, void *obj_map) {
+    GenericFunctionPointer *buffer = nullptr;
+    int result = func_ptr_fetcher((void **)&buffer, obj_map, id.data());
+    if (result != 1) return nullopt;
+    CABIContainer value{ *buffer };
+    disposer(buffer, kExtTypeFunctionPointer);
+    return value;
+  }
+
+  ObjectPointerValue FromObjPointerObject(string id, void *obj_map) {
+    GenericPointer *buffer = nullptr;
+    int result = obj_ptr_fetcher((void **)&buffer, obj_map, id.data());
+    if (result != 1) return nullopt;
+    GenericPointer value = *buffer;
+    return value;
+  }
+
   void ReturnIntObject(int64_t value, VMState state) {
     state.tunnel(&value, state.ret_slot, kExtTypeInt);
   }
@@ -136,6 +157,15 @@ namespace kagami {
     std::wcscpy(buffer, value.data());
     state.tunnel(buffer, state.ret_slot, kExtTypeWideString);
     delete[] buffer;
+  }
+
+  void ReturnFunctionPointerObject(GenericFunctionPointer value, VMState state) {
+    CABIContainer obj{ value };
+    state.tunnel(&obj, state.ret_slot, kExtTypeFunctionPointer);
+  }
+
+  void ReturnObjPointerObject(GenericPointer value, VMState state) {
+    state.tunnel(&value, state.ret_slot, kExtTypeObjectPointer);
   }
 
   void ThrowError(string msg, VMState state) {
