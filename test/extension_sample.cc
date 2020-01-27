@@ -17,13 +17,23 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 }
 #endif
 
-KAGAMI_STANDARD_EXTENSION;
+int kagami_LoadExtension(kagami::ExtInterfaces *interfaces) {
+    bool facilities_result = kagami::InformCallbackFacilities(*interfaces);                           
+    bool mem_mgmt_result = kagami::InformMemoryMgmtInterface(interfaces->disposer);                   
+    bool error_throwing_result = kagami::InformErrorThrowingInterface(
+    interfaces->error_informer);                                                                    
+    bool descriptor_result = kagami::InformDescriptorInterface(interfaces->desc_fetcher);             
+    int result = facilities_result && mem_mgmt_result && error_throwing_result && descriptor_result ? 
+    1 : 0;                                                                                          
+    return result;                                                                                    
+}
 
 const char *kagami_ParameterInformer(const char *id) {
   static unordered_map<string, const char *> parameters = {
     FunctionParameters("sample_helloworld", ""),
     FunctionParameters("sample_plus", "a|b"),
-    FunctionParameters("sample_throw_error", "")
+    FunctionParameters("sample_throw_error", ""),
+    FunctionParameters("sample_variable_print", "@obj")
   };
 
   auto it = parameters.find(string(id));
@@ -51,3 +61,9 @@ int sample_throw_error(kagami::VMState state) {
   return 1;
 }
 
+int sample_variable_print(kagami::VMState state) {
+  auto arr = kagami::GetDesciptor("obj", state.obj_map).value();
+  auto size = kagami::GetArrayObjectCapacity(arr);
+  kagami::ReturnIntObject(size, state);
+  return 1;
+}

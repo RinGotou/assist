@@ -15,6 +15,8 @@ namespace kagami {
     arr_elem_fetcher = nullptr;
   static ObjectDumper
     dumper = nullptr;
+  static CapacityInformer
+    cap_informer = nullptr;
 
   MemoryDisposer GetMemoryDisposer() { return disposer; }
   ObjectDumper GetObjectDumper() { return dumper; }
@@ -49,11 +51,13 @@ namespace kagami {
     arr_elem_fetcher = interfaces.arr_elem_fetcher;
     dumper = interfaces.dumper;
     type_fetcher = interfaces.type_fetcher;
+    cap_informer = interfaces.capacity_informer;
 
     return (desc_fetcher != nullptr)
       && (arr_elem_fetcher != nullptr)
       && (dumper != nullptr)
-      && (type_fetcher != nullptr);
+      && (type_fetcher != nullptr)
+      && (cap_informer != nullptr);
   }
 
   bool InformMemoryMgmtInterface(MemoryDisposer disposer_ptr) {
@@ -76,6 +80,10 @@ namespace kagami {
     int result = desc_fetcher(&descriptor, obj_map, id.data());
     if (result != 1) return nullopt;
     return descriptor;
+  }
+
+  size_t GetArrayObjectCapacity(Descriptor desc) {
+    return cap_informer(desc);
   }
 
   DescriptorValue GetArrayElementDescriptor(Descriptor arr_desc, size_t index) {

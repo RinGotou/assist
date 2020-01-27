@@ -71,6 +71,7 @@ namespace kagami {
   }
 
   DescriptorValue GetDesciptor(string id, void *obj_map);
+  size_t GetArrayObjectCapacity(Descriptor desc);
   DescriptorValue GetArrayElementDescriptor(Descriptor arr_desc, size_t index);
 
   void ReturnIntObject(int64_t value, VMState state);
@@ -83,16 +84,5 @@ namespace kagami {
 
   void ThrowError(string msg, VMState state);
   ObjectType GetObjectType(void *obj_map, string id);
-}
+}                                                                      
 
-#define KAGAMI_STANDARD_EXTENSION                                                                   \
-EXPORTED int kagami_LoadExtension(kagami::ExtInterfaces *interfaces) {                              \
-  bool facilities_result = kagami::InformCallbackFacilities(*interfaces);                           \
-  bool mem_mgmt_result = kagami::InformMemoryMgmtInterface(interfaces->disposer);                   \
-  bool error_throwing_result = kagami::InformErrorThrowingInterface(                                \
-    interfaces->error_informer);                                                                    \
-  bool descriptor_result = kagami::InformDescriptorInterface(interfaces->desc_fetcher);             \
-  int result = facilities_result && mem_mgmt_result && error_throwing_result && descriptor_result ? \
-    1 : 0;                                                                                          \
-  return result;                                                                                    \
-}

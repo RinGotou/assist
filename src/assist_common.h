@@ -67,6 +67,7 @@ namespace kagami {
   using ArrayElementFetcher = int(*)(Descriptor *, Descriptor *, size_t);
   using ObjectDumper = int(*)(Descriptor *, void **);
   using DescriptorFetcher = int(*)(Descriptor *, void *, const char *);
+  using CapacityInformer = size_t(*)(Descriptor);
 
   extern "C" struct ExtInterfaces {
     MemoryDisposer disposer;
@@ -75,6 +76,7 @@ namespace kagami {
     DescriptorFetcher desc_fetcher;
     ArrayElementFetcher arr_elem_fetcher;
     ObjectDumper dumper;
+    CapacityInformer capacity_informer;
   };
 
   using IntValue = optional<int64_t>;
