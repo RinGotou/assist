@@ -1,21 +1,77 @@
 #pragma once
-#include "assist_common.h"
+#include "assist_types.h"
 
 namespace kagami {
+  MemoryDisposer GetMemoryDisposer();
+  ObjectDumper GetObjectDumper();
+  DescriptorFetcher GetDescriptorFetcher();
+
   vector<string> BuildStringVector(string source);
   string CombineStringVector(vector<string> target);
 
-  bool InformCallbackFacilities(CallbackFacilityLauncher launcher, ObjectTypeFetcher fetcher);
-  bool InformMemoryMgmtInterface(MemoryDisposer disposer_ptr, MemoryDisposer group_disposer_ptr);
+  bool InformCallbackFacilities(ExtInterfaces &interfaces);
+  bool InformMemoryMgmtInterface(MemoryDisposer disposer_ptr);
   bool InformErrorThrowingInterface(ErrorInformer informer);
+  bool InformDescriptorInterface(DescriptorFetcher fetcher);
 
-  IntValue FromIntObject(string id, void *obj_map);
-  FloatValue FromFloatObject(string id, void *obj_map);
-  BoolValue FromBoolObject(string id, void *obj_map);
-  StringValue FromStringObject(string id, void *obj_map);
-  WideStringValue FromWideStringObject(string id, void *obj_map);
-  FunctionPointerValue FromFunctionPointerObject(string id, void *obj_map);
-  ObjectPointerValue FromObjPointerObject(string id, void *obj_map);
+  template <typename _Type>
+  optional<_Type> 
+    FromDescriptor(Descriptor desc) {
+    ObjectDumper dumper = GetObjectDumper();
+    MemoryDisposer disposer = GetMemoryDisposer();
+    void *dest = nullptr;
+    _Type value;
+
+    int dump_result = dumper(&desc, &dest);
+    if (dump_result != 1) return nullopt;
+
+    if constexpr (_IsStringObject(_RevObjectTypeTrait<_Type>::type)) {
+      typename _CharTypeTrait<_Type>::Type *ptr = dest;
+      value = _Type(dest);
+      disposer(dest, _RevObjectTypeTrait<_Type>::type);
+    }
+    else {
+      _Type value = *(_Type *)dest;
+      disposer(dest);
+    }
+    
+    return value;
+  }
+
+  template <ObjectType _TypeCode>
+  optional<typename _ObjectTypeTrait<_TypeCode>::Type>
+    FromObject(string id, void *obj_map) {
+    Descriptor desc;
+    DescriptorFetcher fetcher = GetDescriptorFetcher();
+    ObjectDumper dumper = GetObjectDumper();
+    MemoryDisposer disposer = GetMemoryDisposer();
+    typename _ObjectTypeTrait<_TypeCode>::Type value;
+
+    int fetch_result = fetcher(&desc, obj_map, id.data());
+    if (fetch_result != 1) return nullopt;
+    if (desc.type != _TypeCode) return nullopt;
+
+    if constexpr (_IsStringObject(_TypeCode)) {
+      typename _CharTypeTrait<typename _ObjectTypeTrait<_TypeCode>::Type>::Type
+        *buffer = nullptr;
+      int dump_result = dumper(desc, (void **)&buffer);
+      if (dump_result != 1) return nullopt;
+      value = typename _ObjectTypeTrait<_TypeCode>::Type(buffer);
+      disposer(buffer, _TypeCode);
+    }
+    else {
+      typename _ObjectTypeTrait<_TypeCode>::Type *buffer = nullptr;
+      int dump_result = dumper(&desc, (void **)&buffer);
+      if (dump_result != 1) return nullopt;
+      value = *buffer;
+      disposer(buffer, _TypeCode);
+    }
+
+    return value;
+  }
+
+  DescriptorValue GetDesciptor(string id, void *obj_map);
+  DescriptorValue GetArrayElementDescriptor(Descriptor arr_desc, size_t index);
 
   void ReturnIntObject(int64_t value, VMState state);
   void ReturnFloatObject(double value, VMState state);
@@ -26,18 +82,17 @@ namespace kagami {
   void ReturnObjPointerObject(GenericPointer value, VMState state);
 
   void ThrowError(string msg, VMState state);
-  ExtActivityReturnType GetObjectType(void *obj_map, string id);
+  ObjectType GetObjectType(void *obj_map, string id);
 }
 
-#define KAGAMI_STANDARD_EXTENSION                                              \
-EXPORTED int kagami_LoadExtension(kagami::ExtInterfaces *interfaces) {                  \
-  bool facilities_result = kagami::InformCallbackFacilities(                   \
-    interfaces->launcher, interfaces->type_fetcher);                           \
-  bool mem_mgmt_result = kagami::InformMemoryMgmtInterface(                    \
-    interfaces->disposer, interfaces->group_disposer);                         \
-  bool error_throwing_result = kagami::InformErrorThrowingInterface(           \
-    interfaces->error_informer);                                               \
-  int result = facilities_result && mem_mgmt_result && error_throwing_result ? \
-    1 : 0;                                                                     \
-  return result;                                                               \
+#define KAGAMI_STANDARD_EXTENSION                                                                   \
+EXPORTED int kagami_LoadExtension(kagami::ExtInterfaces *interfaces) {                              \
+  bool facilities_result = kagami::InformCallbackFacilities(*interfaces);                           \
+  bool mem_mgmt_result = kagami::InformMemoryMgmtInterface(interfaces->disposer);                   \
+  bool error_throwing_result = kagami::InformErrorThrowingInterface(                                \
+    interfaces->error_informer);                                                                    \
+  bool descriptor_result = kagami::InformDescriptorInterface(interfaces->desc_fetcher);             \
+  int result = facilities_result && mem_mgmt_result && error_throwing_result && descriptor_result ? \
+    1 : 0;                                                                                          \
+  return result;                                                                                    \
 }

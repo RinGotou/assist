@@ -38,8 +38,8 @@ int sample_helloworld(kagami::VMState state) {
 }
 
 int sample_plus(kagami::VMState state) {
-  auto a = kagami::FromIntObject("a", state.obj_map);
-  auto b = kagami::FromIntObject("b", state.obj_map);
+  auto a = kagami::FromObject<kagami::kExtTypeInt>("a", state.obj_map);
+  auto b = kagami::FromObject<kagami::kExtTypeInt>("b", state.obj_map);
   if (!a.has_value() || !b.has_value()) return 0;
   int64_t result = a.value() + b.value();
   kagami::ReturnIntObject(result, state);

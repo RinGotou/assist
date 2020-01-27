@@ -1,21 +1,24 @@
 #include "assist_mgmt.h"
 
+//TODO:Error code handling
+
 namespace kagami {
-  static ObjectValueFetcher
-    int_fetcher      = nullptr,
-    float_fetcher    = nullptr,
-    bool_fetcher     = nullptr,
-    string_fetcher   = nullptr,
-    wstring_fetcher  = nullptr,
-    func_ptr_fetcher = nullptr,
-    obj_ptr_fetcher  = nullptr;
   static MemoryDisposer
-    disposer        = nullptr,
-    group_disposer  = nullptr;
+    disposer = nullptr;
   static ObjectTypeFetcher
     type_fetcher    = nullptr;
   static ErrorInformer 
     error_informer  = nullptr;
+  static DescriptorFetcher
+    desc_fetcher = nullptr;
+  static ArrayElementFetcher
+    arr_elem_fetcher = nullptr;
+  static ObjectDumper
+    dumper = nullptr;
+
+  MemoryDisposer GetMemoryDisposer() { return disposer; }
+  ObjectDumper GetObjectDumper() { return dumper; }
+  DescriptorFetcher GetDescriptorFetcher() { return desc_fetcher; }
 
   vector<string> BuildStringVector(string source) {
     vector<string> result;
@@ -41,28 +44,21 @@ namespace kagami {
     return result;
   }
 
-  bool InformCallbackFacilities(CallbackFacilityLauncher launcher, ObjectTypeFetcher fetcher) {
-    int_fetcher = launcher("int");
-    float_fetcher = launcher("float");
-    bool_fetcher = launcher("bool");
-    string_fetcher = launcher("string");
-    wstring_fetcher = launcher("wstring");
-    func_ptr_fetcher = launcher("function_pointer");
-    obj_ptr_fetcher = launcher("object_pointer");
-    type_fetcher = fetcher;
+  bool InformCallbackFacilities(ExtInterfaces &interfaces) {
+    desc_fetcher = interfaces.desc_fetcher;
+    arr_elem_fetcher = interfaces.arr_elem_fetcher;
+    dumper = interfaces.dumper;
+    type_fetcher = interfaces.type_fetcher;
 
-    return (int_fetcher   != nullptr)
-      && (float_fetcher   != nullptr)
-      && (bool_fetcher    != nullptr)
-      && (string_fetcher  != nullptr)
-      && (wstring_fetcher != nullptr)
-      && (type_fetcher    != nullptr);
+    return (desc_fetcher != nullptr)
+      && (arr_elem_fetcher != nullptr)
+      && (dumper != nullptr)
+      && (type_fetcher != nullptr);
   }
 
-  bool InformMemoryMgmtInterface(MemoryDisposer disposer_ptr, MemoryDisposer group_disposer_ptr) {
+  bool InformMemoryMgmtInterface(MemoryDisposer disposer_ptr) {
     disposer = disposer_ptr;
-    group_disposer = group_disposer_ptr;
-    return (disposer != nullptr) && (group_disposer_ptr != nullptr);
+    return (disposer != nullptr);
   }
 
   bool InformErrorThrowingInterface(ErrorInformer informer) {
@@ -70,66 +66,23 @@ namespace kagami {
     return error_informer != nullptr;
   }
 
-  IntValue FromIntObject(string id, void *obj_map) {
-    int64_t *buffer = nullptr;
-    int result = int_fetcher((void **)&buffer, obj_map, id.data());
-    if (result != 1) return nullopt;
-    int64_t value = *buffer;
-    disposer(buffer, kExtTypeInt);
-    return value;
+  bool InformDescriptorInterface(DescriptorFetcher fetcher) {
+    desc_fetcher = fetcher;
+    return desc_fetcher != nullptr;
   }
 
-  FloatValue FromFloatObject(string id, void *obj_map) {
-    double *buffer = nullptr;
-    int result = float_fetcher((void **)&buffer, obj_map, id.data());
+  DescriptorValue GetDesciptor(string id, void *obj_map) {
+    Descriptor descriptor;
+    int result = desc_fetcher(&descriptor, obj_map, id.data());
     if (result != 1) return nullopt;
-    double value = *buffer;
-    disposer(buffer, kExtTypeFloat);
-    return value;
+    return descriptor;
   }
 
-  BoolValue FromBoolObject(string id, void *obj_map) {
-    int *buffer = nullptr;
-    int result = bool_fetcher((void **)&buffer, obj_map, id.data());
-    if (result != 1) return nullopt;
-    bool value = (*buffer == 1);
-    disposer(buffer, kExtTypeBool);
-    return value;
-  }
-
-  StringValue FromStringObject(string id, void *obj_map) {
-    char *buffer = nullptr;
-    int result = string_fetcher((void **)&buffer, obj_map, id.data());
-    if (result != 1) return nullopt;
-    string value(buffer);
-    group_disposer(buffer, kExtTypeString);
-    return value;
-  }
-
-  WideStringValue FromWideStringObject(string id, void *obj_map) {
-    wchar_t *buffer = nullptr;
-    int result = wstring_fetcher((void **)&buffer, obj_map, id.data());
-    if (result != 1) return nullopt;
-    wstring value(buffer);
-    group_disposer(buffer, kExtTypeWideString);
-    return value;
-  }
-
-  FunctionPointerValue FromFunctionPointerObject(string id, void *obj_map) {
-    GenericFunctionPointer *buffer = nullptr;
-    int result = func_ptr_fetcher((void **)&buffer, obj_map, id.data());
-    if (result != 1) return nullopt;
-    CABIContainer value{ *buffer };
-    disposer(buffer, kExtTypeFunctionPointer);
-    return value;
-  }
-
-  ObjectPointerValue FromObjPointerObject(string id, void *obj_map) {
-    GenericPointer *buffer = nullptr;
-    int result = obj_ptr_fetcher((void **)&buffer, obj_map, id.data());
-    if (result != 1) return nullopt;
-    GenericPointer value = *buffer;
-    return value;
+  DescriptorValue GetArrayElementDescriptor(Descriptor arr_desc, size_t index) {
+    Descriptor elem;
+    int fetch_result = arr_elem_fetcher(&arr_desc, &elem, index);
+    if (fetch_result != 1) return nullopt;
+    return elem;
   }
 
   void ReturnIntObject(int64_t value, VMState state) {
@@ -146,22 +99,15 @@ namespace kagami {
   }
 
   void ReturnStringObject(string value, VMState state) {
-    char *buffer = new char[value.size() + 1];
-    std::strcpy(buffer, value.data());
-    state.tunnel(buffer, state.ret_slot, kExtTypeString);
-    delete[] buffer;
+    state.tunnel(value.data(), state.ret_slot, kExtTypeString);
   }
 
   void ReturnWideStringObject(wstring value, VMState state) {
-    wchar_t *buffer = new wchar_t[value.size() + 1];
-    std::wcscpy(buffer, value.data());
-    state.tunnel(buffer, state.ret_slot, kExtTypeWideString);
-    delete[] buffer;
+    state.tunnel(value.data(), state.ret_slot, kExtTypeString);
   }
 
   void ReturnFunctionPointerObject(GenericFunctionPointer value, VMState state) {
-    CABIContainer obj{ value };
-    state.tunnel(&obj, state.ret_slot, kExtTypeFunctionPointer);
+    state.tunnel(&value, state.ret_slot, kExtTypeFunctionPointer);
   }
 
   void ReturnObjPointerObject(GenericPointer value, VMState state) {
@@ -172,7 +118,7 @@ namespace kagami {
     error_informer(state.vm, msg.data());
   }
 
-  ExtActivityReturnType GetObjectType(void *obj_map, string id) {
-    return ExtActivityReturnType(type_fetcher(obj_map, id.data()));
+  ObjectType GetObjectType(void *obj_map, string id) {
+    return ObjectType(type_fetcher(obj_map, id.data()));
   }
 }
