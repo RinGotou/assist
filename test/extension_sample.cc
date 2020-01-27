@@ -18,14 +18,8 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 #endif
 
 int kagami_LoadExtension(kagami::ExtInterfaces *interfaces) {
-    bool facilities_result = kagami::InformCallbackFacilities(*interfaces);                           
-    bool mem_mgmt_result = kagami::InformMemoryMgmtInterface(interfaces->disposer);                   
-    bool error_throwing_result = kagami::InformErrorThrowingInterface(
-    interfaces->error_informer);                                                                    
-    bool descriptor_result = kagami::InformDescriptorInterface(interfaces->desc_fetcher);             
-    int result = facilities_result && mem_mgmt_result && error_throwing_result && descriptor_result ? 
-    1 : 0;                                                                                          
-    return result;                                                                                    
+  bool result = kagami::InformCallbackFacilities(*interfaces);                                                                                                               
+  return result ? 1 : 0;
 }
 
 const char *kagami_ParameterInformer(const char *id) {

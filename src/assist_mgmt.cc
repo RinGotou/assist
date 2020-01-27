@@ -52,27 +52,18 @@ namespace kagami {
     dumper = interfaces.dumper;
     type_fetcher = interfaces.type_fetcher;
     cap_informer = interfaces.capacity_informer;
+    disposer = interfaces.disposer;
+    error_informer = interfaces.error_informer;
+    desc_fetcher = interfaces.desc_fetcher;
 
     return (desc_fetcher != nullptr)
       && (arr_elem_fetcher != nullptr)
       && (dumper != nullptr)
       && (type_fetcher != nullptr)
-      && (cap_informer != nullptr);
-  }
-
-  bool InformMemoryMgmtInterface(MemoryDisposer disposer_ptr) {
-    disposer = disposer_ptr;
-    return (disposer != nullptr);
-  }
-
-  bool InformErrorThrowingInterface(ErrorInformer informer) {
-    error_informer = informer;
-    return error_informer != nullptr;
-  }
-
-  bool InformDescriptorInterface(DescriptorFetcher fetcher) {
-    desc_fetcher = fetcher;
-    return desc_fetcher != nullptr;
+      && (cap_informer != nullptr)
+      && (disposer != nullptr)
+      && (error_informer != nullptr)
+      && (desc_fetcher != nullptr);
   }
 
   DescriptorValue GetDesciptor(string id, void *obj_map) {

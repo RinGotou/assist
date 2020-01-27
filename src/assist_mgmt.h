@@ -10,9 +10,6 @@ namespace kagami {
   string CombineStringVector(vector<string> target);
 
   bool InformCallbackFacilities(ExtInterfaces &interfaces);
-  bool InformMemoryMgmtInterface(MemoryDisposer disposer_ptr);
-  bool InformErrorThrowingInterface(ErrorInformer informer);
-  bool InformDescriptorInterface(DescriptorFetcher fetcher);
 
   template <typename _Type>
   optional<_Type> 

@@ -26,4 +26,5 @@ extern "C" {
   EXPORTED int sample_helloworld(kagami::VMState state);
   EXPORTED int sample_plus(kagami::VMState state);
   EXPORTED int sample_throw_error(kagami::VMState state);
+  EXPORTED int sample_variable_print(kagami::VMState state);
 }
