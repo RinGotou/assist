@@ -2,6 +2,8 @@
 #include "assist_common.h"
 
 namespace kagami {
+  const Descriptor kEmptyDescriptpr{ nullptr, kExtUnsupported };
+
   struct _UnsupportedObjectType {};
   struct NullObjectType {};
 

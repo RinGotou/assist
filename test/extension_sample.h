@@ -5,6 +5,7 @@
 #endif
 #include <unordered_map>
 #include <string>
+#include <cstdio>
 #include "assist.h"
 
 #ifdef _WIN32

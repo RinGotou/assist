@@ -1,6 +1,7 @@
 #include "assist_mgmt.h"
 
 //TODO:Error code handling
+//TODO:Error reporting
 
 namespace kagami {
   static MemoryDisposer
@@ -82,6 +83,15 @@ namespace kagami {
     int fetch_result = arr_elem_fetcher(&arr_desc, &elem, index);
     if (fetch_result != 1) return nullopt;
     return elem;
+  }
+
+  vector<Descriptor> GetArrayElements(Descriptor desc) {
+    auto size = cap_informer(desc);
+    vector<Descriptor> result;
+    for (size_t index = 0; index < size; index += 1) {
+      result.push_back(GetArrayElementDescriptor(desc, index).value());
+    }
+    return result;
   }
 
   void ReturnIntObject(int64_t value, VMState state) {

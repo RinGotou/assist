@@ -52,12 +52,20 @@ int sample_plus(kagami::VMState state) {
 
 int sample_throw_error(kagami::VMState state) {
   kagami::ThrowError("Error Example", state);
-  return 1;
+  return 0;
 }
 
 int sample_variable_print(kagami::VMState state) {
   auto arr = kagami::GetDesciptor("obj", state.obj_map).value();
   auto size = kagami::GetArrayObjectCapacity(arr);
+  auto obj = kagami::GetArrayElements(arr);
+
+  for (auto &unit : obj) {
+    auto num = kagami::FromDescriptor<int64_t>(unit);
+    string msg = "(Extension sample)" + std::to_string(num.value());
+    std::puts(msg.data());
+  }
+
   kagami::ReturnIntObject(size, state);
   return 1;
 }

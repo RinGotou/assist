@@ -28,8 +28,8 @@ namespace kagami {
       disposer(dest, _RevObjectTypeTrait<_Type>::type);
     }
     else {
-      _Type value = *(_Type *)dest;
-      disposer(dest);
+      value = *(_Type *)dest;
+      disposer(dest, _RevObjectTypeTrait<_Type>::type);
     }
     
     return value;
@@ -70,6 +70,7 @@ namespace kagami {
   DescriptorValue GetDesciptor(string id, void *obj_map);
   size_t GetArrayObjectCapacity(Descriptor desc);
   DescriptorValue GetArrayElementDescriptor(Descriptor arr_desc, size_t index);
+  vector<Descriptor> GetArrayElements(Descriptor desc);
 
   void ReturnIntObject(int64_t value, VMState state);
   void ReturnFloatObject(double value, VMState state);
