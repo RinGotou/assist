@@ -90,4 +90,9 @@ namespace kagami {
 
   template <typename... _Type>
   bool HasValue(_Type... opt) { return (opt.has_value() && ...); }
+
+  template <typename _Lhs, typename... _Rhs>
+  inline bool Compare(_Lhs lhs, _Rhs... rhs) {
+    return ((lhs == rhs) || ...);
+  }
 }
