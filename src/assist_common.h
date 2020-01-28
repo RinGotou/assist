@@ -87,4 +87,7 @@ namespace kagami {
   using FunctionPointerValue = optional<GenericFunctionPointer>;
   using ObjectPointerValue = optional<GenericPointer>;
   using DescriptorValue = optional<Descriptor>;
+
+  template <typename... _Type>
+  bool HasValue(_Type... opt) { return (opt.has_value() && ...); }
 }
